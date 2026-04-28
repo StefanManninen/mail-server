@@ -1,0 +1,49 @@
+[DEFAULT]
+bantime  = 1d
+findtime = 20m
+maxretry = 3
+destemail = admin@example.com
+mta       = mail
+
+banaction = iptables-multiport
+banaction_allports = iptables-allports
+
+[postfix]
+enabled  = true
+port     = smtp,ssmtp,submission
+filter   = postfix
+logpath  = /var/log/mail.log
+action   = %(banaction_allports)s[name=postfix, blocktype=DROP]
+
+[postfix-sasl]
+enabled  = true
+port     = smtp,ssmtp,submission
+filter   = postfix[mode=auth]
+logpath  = /var/log/mail.log
+           /var/log/auth.log
+action   = %(banaction_allports)s[name=postfix-sasl, blocktype=DROP]
+
+[postfix-dovecot-pam]
+enabled  = true
+port     = smtp,ssmtp,submission
+filter   = postfix-dovecot-pam
+logpath  = /var/log/auth.log
+maxretry = 2
+action   = %(banaction_allports)s[name=postfix-dovecot-pam, blocktype=DROP]
+backend  = polling
+datepattern = {^LN-BEG}
+
+[sshd]
+enabled  = true
+port     = ssh
+filter   = sshd
+logpath  = /var/log/auth.log
+action   = %(banaction_allports)s[name=sshd, blocktype=DROP]
+
+[recidive]
+enabled   = true
+logpath   = /var/log/fail2ban.log
+bantime   = -1
+findtime  = 30d
+maxretry  = 3
+action    = %(banaction_allports)s[name=recidive, blocktype=DROP]

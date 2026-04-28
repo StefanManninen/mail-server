@@ -1,0 +1,97 @@
+# See /usr/share/postfix/main.cf.dist for a commented, more complete version
+
+
+# Debian specific:  Specifying a file name will cause the first
+# line of that file to be used as the name.  The Debian default
+# is /etc/mailname.
+#myorigin = /etc/mailname
+
+smtpd_banner = $myhostname ESMTP $mail_name (Ubuntu)
+biff = no
+smtputf8_enable = no
+
+# appending .domain is the MUA's job.
+append_dot_mydomain = no
+
+# Uncomment the next line to generate "delayed mail" warnings
+#delay_warning_time = 4h
+
+readme_directory = no
+data_directory = /var/lib/postfix
+# See http://www.postfix.org/COMPATIBILITY_README.html -- default to 3.6 on
+# fresh installs.
+compatibility_level = 3.6
+
+# OpenDKIM + Rspamd milter chain
+smtpd_milters = inet:localhost:8891,inet:127.0.0.1:11332
+#non_smtpd_milters = inet:localhost:8891,inet:127.0.0.1:11332
+non_smtpd_milters = $smtpd_milters
+
+milter_mail_macros = i {mail_addr} {client_addr} {client_name} {auth_type} {auth_authen}
+milter_rcpt_macros = i {rcpt_addr} {rcpt_host} {rcpt_mailer}
+
+# Do not reject mail if milter services are temporarily unavailable.
+milter_default_action = accept
+milter_protocol = 6
+
+milter_macro_daemon_name = $myhostname
+
+# TLS parameters
+smtpd_tls_cert_file = /etc/letsencrypt/live/mail.example.com/fullchain.pem
+smtpd_tls_key_file = /etc/letsencrypt/live/mail.example.com/privkey.pem
+smtpd_tls_CAfile = /etc/letsencrypt/live/mail.example.com/chain.pem
+
+
+# Log TLS activity (optional, but useful for debugging)
+smtpd_tls_loglevel=1
+smtp_tls_loglevel=1
+
+# Opportunistic TLS encryption
+smtp_tls_note_starttls_offer=yes
+
+# Stronger encryption algorithms
+smtpd_tls_mandatory_protocols=!SSLv2,!SSLv3
+smtpd_tls_mandatory_ciphers=high
+smtp_tls_mandatory_protocols=!SSLv2,!SSLv3
+smtp_tls_mandatory_ciphers=high
+smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
+
+smtpd_sasl_type = dovecot
+smtpd_sasl_path = private/auth
+smtpd_sasl_auth_enable = yes
+smtpd_tls_auth_only = yes
+smtpd_sasl_security_options = noanonymous
+smtpd_sasl_local_domain = $myhostname
+broken_sasl_auth_clients = yes
+
+
+smtpd_tls_security_level=may
+smtp_tls_security_level=may
+smtpd_tls_received_header=yes
+
+smtpd_relay_restrictions = permit_mynetworks, permit_sasl_authenticated, defer_unauth_destination
+smtpd_recipient_restrictions = permit_sasl_authenticated, permit_mynetworks, reject_unauth_destination
+
+myhostname = mail.example.com
+alias_maps = hash:/etc/aliases
+alias_database = hash:/etc/aliases
+myorigin = /etc/mailname
+mydestination =  $myhostname, localhost.example.com, localhost mail.example.com
+relayhost = 
+mynetworks = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128
+mailbox_size_limit = 0
+recipient_delimiter = +
+inet_interfaces = all
+inet_protocols = all
+message_size_limit = 52428800
+
+virtual_mailbox_domains = example.com
+virtual_mailbox_base = /var/mail/vhosts
+virtual_mailbox_maps = hash:/etc/postfix/vmailbox
+virtual_minimum_uid = 100
+virtual_uid_maps = static:5000
+virtual_gid_maps = static:5000
+virtual_alias_maps = hash:/etc/postfix/virtual
+#virtual_mailbox_domains = hash:/etc/postfix/vmailbox
+# Unlimited:
+virtual_mailbox_limit = 0

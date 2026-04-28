@@ -1,5 +1,8 @@
 # No Bullshit Mailserver
 
+If you cannot adapt this to your environment,
+you probably should not run your own mailserver.
+
 A working self-hosted mailserver setup based on:
 
 - Postfix
@@ -7,11 +10,20 @@ A working self-hosted mailserver setup based on:
 - Rspamd
 - OpenDKIM
 - Fail2Ban
+- Unbound
+- Nginx
 
 This is not a commercial product. This is not a universal guide. This is a
 working setup I use myself.
 
 Use it, modify it, or ignore it.
+
+## Installation
+
+No installation instructions are provided.
+
+If you cannot install and wire these components together,
+you should not run your own mailserver.
 
 ## Goal
 
@@ -54,6 +66,10 @@ This setup focuses on:
 Works for me.
 
 Mail-tester score: 10/10
+
+This does not fix bad IP reputation.
+Email delivery is mostly DNS and reputation.
+Not configuration.
 
 ## Support
 

@@ -1,0 +1,11 @@
+# Required role aliases
+abuse@example.com        admin@example.com
+hostmaster@example.com   admin@example.com
+postmaster@example.com   admin@example.com
+webmaster@example.com    admin@example.com
+
+# System/root mail
+root                     admin@example.com
+
+# Catch-all alias
+@example.org             admin@example.com
